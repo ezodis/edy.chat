@@ -1,0 +1,32 @@
+#docker-compose run --rm parser && docker-compose up web -d
+
+version: "3.9"
+
+services:
+  parser:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    working_dir: /app
+
+  db:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./output/messages.sql:/docker-entrypoint-initdb.d/messages.sql
+    ports:
+      - "3306:3306"
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+    ports:
+      - "5004:5000"
